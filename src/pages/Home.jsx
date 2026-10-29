@@ -1,5 +1,10 @@
+import emailjs from "@emailjs/browser";
 import { useState } from "react";
 import Swal from "sweetalert2";
+
+const EMAILJS_SERVICE_ID = "service_il4lvcn";
+const EMAILJS_TEMPLATE_ID = "template_0qgn9pp";
+const EMAILJS_PUBLIC_KEY = "L8ZJFkTrL1JFAxLhc";
 
 export default function Home() {
   const [values, setValues] = useState({
@@ -9,6 +14,7 @@ export default function Home() {
     message: "",
   });
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -42,23 +48,58 @@ export default function Home() {
     return nextErrors;
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     const nextErrors = validateForm();
     setErrors(nextErrors);
 
-    if (Object.keys(nextErrors).length > 0) {
+    if (Object.keys(nextErrors).length > 0 || isSubmitting) {
       return;
     }
 
-    Swal.fire({
-      icon: "success",
-      title: "Message sent!",
-      text: `Thanks, ${values.name.trim()}. Your form has been submitted.`,
-      confirmButtonColor: "#4f46e5",
-    });
+    setIsSubmitting(true);
 
-    setValues({ name: "", email: "", phone: "", message: "" });
+    try {
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          user_name: values.name.trim(),
+          user_email: values.email.trim(),
+          user_phone: values.phone.trim(),
+          message: values.message.trim(),
+        },
+        EMAILJS_PUBLIC_KEY,
+      );
+
+      await Swal.fire({
+        icon: "success",
+        title: "Message sent!",
+        text: `Thanks, ${values.name.trim()}. Your message has been delivered.`,
+        confirmButtonColor: "#4f46e5",
+      });
+
+      setValues({ name: "", email: "", phone: "", message: "" });
+    } catch (error) {
+      console.error("EmailJS form submission failed:", error);
+      const errorMessage =
+        typeof error === "object" &&
+        error !== null &&
+        "text" in error &&
+        typeof error.text === "string"
+          ? error.text
+          : error instanceof Error
+            ? error.message
+            : "EmailJS returned an unexpected error.";
+      await Swal.fire({
+        icon: "error",
+        title: "Unable to send your message",
+        text: errorMessage,
+        confirmButtonColor: "#4f46e5",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const inputClasses =
@@ -165,10 +206,11 @@ export default function Home() {
           </div>
 
           <button
-            className="w-full rounded-lg bg-indigo-600 px-5 py-3 font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            className="w-full rounded-lg bg-indigo-600 px-5 py-3 font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={isSubmitting}
             type="submit"
           >
-            Submit
+            {isSubmitting ? "Sending..." : "Submit"}
           </button>
         </form>
       </section>
