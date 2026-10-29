@@ -1,18 +1,6 @@
-# Studio North starter
+# Form Validation + err + sweetalert(for showing alert)
 
-A React 19 + Vite starter configured with Tailwind CSS 4, React Router, and AOS.
+## links
+1. live link:- https://form-validation-pi-taupe.vercel.app
+2. repo link:- https://github.com/AnshuChaudhary012/form_validation
 
-## Start developing
-
-```sh
-npm install
-npm run dev
-```
-
-## Other commands
-
-```sh
-npm run build
-npm run preview
-npm run lint
-```
