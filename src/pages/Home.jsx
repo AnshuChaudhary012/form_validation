@@ -41,10 +41,6 @@ export default function Home() {
       nextErrors.phone = "Phone number must contain at least 10 digits.";
     }
 
-    if (!values.message.trim()) {
-      nextErrors.message = "Please enter a message.";
-    }
-
     return nextErrors;
   }
 
@@ -200,9 +196,6 @@ export default function Home() {
               rows="4"
               value={values.message}
             />
-            {errors.message && (
-              <p className="mt-1 text-sm text-red-600">{errors.message}</p>
-            )}
           </div>
 
           <button
